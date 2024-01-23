@@ -51,6 +51,23 @@ async function run() {
       // console.log('response', isEmailExist);
     });
 
+
+
+
+    // user login
+    app.get('/users',async (req, res)=>{
+        const { email, password } = req?.query
+
+        const user = await users.findOne({email:email});
+        if(!user){
+           return res.send({Message: 'User not Find'})
+        }
+
+        if(password === user?.password){
+           return res.send({name: user.name, email:user.email, role: user.role, phone: user.phone, id: user.id })
+        }
+    })
+
     // Rooms
     app.get('/rooms', async (req, res) => {
       const result = await RoomsDB.find().toArray();
