@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = 3000;
-const {MongoClient, ServerApiVersion} = require('mongodb');
+const {MongoClient, ServerApiVersion, ObjectId} = require('mongodb');
 
 const uri = process.env.MongoDB_URI;
 
@@ -39,39 +39,47 @@ async function run() {
 
       const isEmailExist = await users.findOne({email: email});
 
-
       if (isEmailExist?.email === email) {
-        
-      console.log('vtc', isEmailExist.email, email);
+        console.log('vtc', isEmailExist.email, email);
         res.send({status: 'Fail', message: 'email already exist'});
       } else {
-        const result = await users.insertOne(UserData)
+        const result = await users.insertOne(UserData);
         res.send(result);
       }
       // console.log('response', isEmailExist);
     });
 
-
-
-
     // user login
-    app.get('/users',async (req, res)=>{
-        const { email, password } = req?.query
+    app.get('/users', async (req, res) => {
+      const {email, password} = req?.query;
 
-        const user = await users.findOne({email:email});
-        if(!user){
-           return res.send({Message: 'User not Find'})
-        }
+      const user = await users.findOne({email: email});
+      if (!user) {
+        return res.send({Message: 'User not Find'});
+      }
 
-        if(password === user?.password){
-           return res.send({name: user.name, email:user.email, role: user.role, phone: user.phone, id: user.id })
-        }
-    })
+      if (password === user?.password) {
+        return res.send({
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          id: user.id,
+        });
+      }
+    });
 
     // Rooms
     app.get('/rooms', async (req, res) => {
       const result = await RoomsDB.find().toArray();
-      console.log(result);
+      res.send(result);
+    });
+
+    // Rooms ny id
+    app.get('/rooms/:id', async (req, res) => {
+      const {id} = req?.params;
+      const result = await RoomsDB.findOne({_id: new ObjectId(id)});
+      console.log(result)
       res.send(result);
     });
 
